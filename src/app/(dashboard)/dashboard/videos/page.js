@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PlusIcon, XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 export default function VideosPage() {
   const router = useRouter();
@@ -199,14 +200,16 @@ export default function VideosPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 w-full">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Videos</h1>
+    <div className="max-w-5xl mx-auto mt-14 w-full">
+      <div className="flex justify-between items-center mb-8 sticky top-0 bg-white z-10 py-2">
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 flex items-center gap-2">
+          <span>Videos</span>
+        </h1>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700 transition"
+          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition font-semibold"
         >
-          Add Video
+          <PlusIcon className="h-5 w-5" /> Add Video
         </button>
       </div>
       {error && (
@@ -214,85 +217,114 @@ export default function VideosPage() {
           {error}
         </div>
       )}
-      <div className="bg-white rounded-lg shadow p-6">
-        <table className="w-full text-left">
-          <thead>
-            <tr>
-              <th className="py-2 px-3 font-semibold text-gray-700">Title</th>
-              <th className="py-2 px-3 font-semibold text-gray-700">
-                Category
-              </th>
-              <th className="py-2 px-3 font-semibold text-gray-700">
-                Duration
-              </th>
-              <th className="py-2 px-3 font-semibold text-gray-700">
-                Pause Times
-              </th>
-              <th className="py-2 px-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {videos.map((video) => (
-              <tr key={video._id} className="border-t border-gray-100">
-                <td className="py-2 px-3">{video.title}</td>
-                <td className="py-2 px-3 text-gray-500">
-                  {video.categoryId?.name}
-                </td>
-                <td className="py-2 px-3 text-gray-500">
-                  {video.duration} seconds
-                </td>
-                <td className="py-2 px-3 text-gray-500">
-                  {video.pauseTimes.length} pauses
-                </td>
-                <td className="py-2 px-3 text-right">
-                  <button
-                    onClick={() => handleDelete(video._id)}
-                    className="text-red-500 hover:underline text-sm"
+      <div className="bg-white rounded-2xl shadow-lg p-6">
+        {loading ? (
+          <div className="text-center text-gray-400 py-8">Loading...</div>
+        ) : videos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <svg
+              className="h-12 w-12 text-gray-200 mb-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6"
+              />
+            </svg>
+            <div className="text-gray-400 text-lg font-medium">
+              No videos yet.
+            </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-separate border-spacing-y-1">
+              <thead>
+                <tr>
+                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50 rounded-tl-xl">
+                    Title
+                  </th>
+                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
+                    Category
+                  </th>
+                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
+                    Duration
+                  </th>
+                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
+                    Description
+                  </th>
+                  <th className="py-3 px-4 bg-gray-50 rounded-tr-xl text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {videos.map((video, idx) => (
+                  <tr
+                    key={video._id}
+                    className={`transition hover:bg-indigo-50 ${
+                      idx % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    }`}
                   >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {videos.length === 0 && (
-          <div className="text-center text-gray-400 py-8">No videos yet.</div>
+                    <td className="py-3 px-4 font-medium text-gray-900 rounded-l-xl">
+                      {video.title}
+                    </td>
+                    <td className="py-3 px-4 text-gray-500">
+                      {categories.find((c) => c._id === video.categoryId)
+                        ?.name || "N/A"}
+                    </td>
+                    <td className="py-3 px-4 text-gray-500">
+                      {video.duration ? `${video.duration} sec` : "-"}
+                    </td>
+                    <td className="py-3 px-4 text-gray-500">
+                      {video.description}
+                    </td>
+                    <td className="py-3 px-4 text-right rounded-r-xl flex gap-2 justify-end">
+                      <a
+                        href={video.cloudinaryUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium px-3 py-1 rounded transition"
+                        title="View"
+                      >
+                        View
+                      </a>
+                      <button
+                        onClick={() => handleDelete(video._id)}
+                        className="flex items-center gap-1 text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded transition"
+                        title="Delete"
+                      >
+                        <TrashIcon className="h-5 w-5" /> Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
       {showModal && (
-        <div className="fixed z-20 inset-0 flex items-center justify-center bg-black bg-opacity-30">
+        <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
           <div
-            className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative"
+            className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <form onSubmit={handleSubmit}>
-              <h2 className="text-xl font-semibold mb-6">Add Video</h2>
-              <div className="mb-4">
-                <label
-                  htmlFor="categoryId"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Category
-                </label>
-                <select
-                  id="categoryId"
-                  name="categoryId"
-                  required
-                  className="w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={formData.categoryId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, categoryId: e.target.value })
-                  }
-                >
-                  <option value="">Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+              aria-label="Close"
+              type="button"
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+            <form onSubmit={handleSubmit} className="mt-2">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900">
+                Add Video
+              </h2>
               <div className="mb-4">
                 <label
                   htmlFor="title"
@@ -305,12 +337,37 @@ export default function VideosPage() {
                   name="title"
                   id="title"
                   required
-                  className="w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={formData.title}
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
                 />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="categoryId"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Category
+                </label>
+                <select
+                  name="categoryId"
+                  id="categoryId"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={formData.categoryId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, categoryId: e.target.value })
+                  }
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="mb-4">
                 <label
@@ -322,8 +379,8 @@ export default function VideosPage() {
                 <textarea
                   name="description"
                   id="description"
-                  rows="3"
-                  className="w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  rows="2"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
@@ -341,112 +398,41 @@ export default function VideosPage() {
                   type="number"
                   name="duration"
                   id="duration"
-                  required
-                  min="0"
-                  className="w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={formData.duration}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      duration: parseInt(e.target.value),
-                    })
+                    setFormData({ ...formData, duration: e.target.value })
                   }
                 />
               </div>
-              <div className="mb-4">
+              <div className="mb-6">
                 <label
-                  htmlFor="video"
+                  htmlFor="file"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
                   Video File
                 </label>
                 <input
                   type="file"
-                  name="video"
-                  id="video"
+                  name="file"
+                  id="file"
                   accept="video/*"
-                  required
-                  className="w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   onChange={handleFileChange}
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Pause Times
-                </label>
-                <div className="flex space-x-2 mb-2">
-                  <input
-                    type="number"
-                    placeholder="Time (seconds)"
-                    min="0"
-                    className="w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={currentPauseTime.timeInSeconds}
-                    onChange={(e) =>
-                      setCurrentPauseTime({
-                        ...currentPauseTime,
-                        timeInSeconds: parseInt(e.target.value),
-                      })
-                    }
-                  />
-                  <select
-                    className="w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={currentPauseTime.task}
-                    onChange={(e) =>
-                      setCurrentPauseTime({
-                        ...currentPauseTime,
-                        task: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="">No Task</option>
-                    {tasks.map((task) => (
-                      <option key={task._id} value={task._id}>
-                        {task.description}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={addPauseTime}
-                    className="px-3 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition"
-                  >
-                    Add
-                  </button>
-                </div>
-                {formData.pauseTimes.length > 0 && (
-                  <div className="mt-2">
-                    <ul className="divide-y divide-gray-200">
-                      {formData.pauseTimes.map((pause, index) => (
-                        <li
-                          key={index}
-                          className="py-2 flex justify-between items-center"
-                        >
-                          <span>{pause.timeInSeconds} seconds</span>
-                          <button
-                            type="button"
-                            onClick={() => removePauseTime(index)}
-                            className="text-red-500 hover:underline text-sm"
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-              <div className="flex justify-end gap-2 mt-6">
+              <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
+                  className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition font-semibold"
                   disabled={uploading}
-                  className="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition"
                 >
                   {uploading ? "Uploading..." : "Create"}
                 </button>

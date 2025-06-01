@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { EyeIcon, XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 export default function SubmissionsPage() {
   const router = useRouter();
@@ -77,173 +78,148 @@ export default function SubmissionsPage() {
   }
 
   return (
-    <div className="py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Submissions</h1>
+    <div className="max-w-4xl mx-auto mt-14 w-full">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8 sticky top-0 bg-white z-10 py-2">
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 flex items-center gap-2">
+          <span>Submissions</span>
+        </h1>
+      </div>
+      {/* Error */}
+      {error && (
+        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {error}
         </div>
-
-        {error && (
-          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
+      )}
+      {/* Table/Card */}
+      <div className="bg-white rounded-2xl shadow-lg p-6">
+        {loading ? (
+          <div className="text-center text-gray-400 py-8">Loading...</div>
+        ) : submissions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <svg
+              className="h-12 w-12 text-gray-200 mb-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6"
+              />
+            </svg>
+            <div className="text-gray-400 text-lg font-medium">
+              No submissions yet.
+            </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-separate border-spacing-y-1">
+              <thead>
+                <tr>
+                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50 rounded-tl-xl">
+                    Task
+                  </th>
+                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
+                    Type
+                  </th>
+                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
+                    Submitted At
+                  </th>
+                  <th className="py-3 px-4 bg-gray-50 rounded-tr-xl text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {submissions.map((submission, idx) => (
+                  <tr
+                    key={submission._id}
+                    className={`transition hover:bg-indigo-50 ${
+                      idx % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    }`}
+                  >
+                    <td className="py-3 px-4 font-medium text-gray-900 rounded-l-xl">
+                      {submission.taskId?.description || "N/A"}
+                    </td>
+                    <td className="py-3 px-4 text-gray-500">
+                      {getSubmissionTypeLabel(submission.type)}
+                    </td>
+                    <td className="py-3 px-4 text-gray-500">
+                      {formatDate(submission.submittedAt)}
+                    </td>
+                    <td className="py-3 px-4 text-right rounded-r-xl flex gap-2 justify-end">
+                      <button
+                        onClick={() => handleView(submission)}
+                        className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium px-3 py-1 rounded transition"
+                        title="View"
+                      >
+                        <EyeIcon className="h-5 w-5" /> View
+                      </button>
+                      <button
+                        onClick={() => handleDelete(submission._id)}
+                        className="flex items-center gap-1 text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded transition"
+                        title="Delete"
+                      >
+                        <TrashIcon className="h-5 w-5" /> Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-
-        <div className="mt-8 flex flex-col">
-          <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-                      >
-                        Task
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
-                        Type
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
-                        Submitted At
-                      </th>
-                      <th
-                        scope="col"
-                        className="relative py-3.5 pl-3 pr-4 sm:pr-6"
-                      >
-                        <span className="sr-only">Actions</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {submissions.map((submission) => (
-                      <tr key={submission._id}>
-                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                          {submission.taskId?.description || "N/A"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {getSubmissionTypeLabel(submission.type)}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {formatDate(submission.submittedAt)}
-                        </td>
-                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <button
-                            onClick={() => handleView(submission)}
-                            className="text-indigo-600 hover:text-indigo-900 mr-4"
-                          >
-                            View
-                          </button>
-                          <button
-                            onClick={() => handleDelete(submission._id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-
+      {/* Modal */}
       {showModal && selectedSubmission && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
+        <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
+          <div
+            className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative animate-fadeIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+              aria-label="Close"
+              type="button"
             >
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+            <div className="mb-4">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Submission Details
+              </h3>
+              <p className="text-sm text-gray-500 mb-1">
+                Task: {selectedSubmission.taskId?.description}
+              </p>
+              <p className="text-sm text-gray-500 mb-1">
+                Type: {getSubmissionTypeLabel(selectedSubmission.type)}
+              </p>
+              <p className="text-sm text-gray-500 mb-1">
+                Submitted At: {formatDate(selectedSubmission.submittedAt)}
+              </p>
             </div>
-
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Submission Details
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Task: {selectedSubmission.taskId?.description}
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Type: {getSubmissionTypeLabel(selectedSubmission.type)}
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Submitted At: {formatDate(selectedSubmission.submittedAt)}
-                  </p>
-                </div>
-
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium text-gray-900">Content</h4>
-                  {selectedSubmission.type === "text" ? (
-                    <p className="mt-2 text-sm text-gray-500">
-                      {selectedSubmission.content}
-                    </p>
-                  ) : (
-                    <div className="mt-2">
-                      {selectedSubmission.type === "image" && (
-                        <img
-                          src={selectedSubmission.content}
-                          alt="Submission"
-                          className="max-w-full h-auto rounded-lg"
-                        />
-                      )}
-                      {selectedSubmission.type === "video" && (
-                        <video
-                          src={selectedSubmission.content}
-                          controls
-                          className="max-w-full rounded-lg"
-                        />
-                      )}
-                      {selectedSubmission.type === "audio" && (
-                        <audio
-                          src={selectedSubmission.content}
-                          controls
-                          className="w-full"
-                        />
-                      )}
-                      {selectedSubmission.type === "pdf" && (
-                        <a
-                          href={selectedSubmission.content}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          View PDF
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            <div className="mt-4">
+              <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                Content
+              </h4>
+              {selectedSubmission.type === "text" ? (
+                <p className="mt-2 text-sm text-gray-700 bg-gray-50 rounded p-3">
+                  {selectedSubmission.content}
+                </p>
+              ) : (
+                <a
+                  href={selectedSubmission.content}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:underline"
                 >
-                  Close
-                </button>
-              </div>
+                  View File
+                </a>
+              )}
             </div>
           </div>
         </div>
