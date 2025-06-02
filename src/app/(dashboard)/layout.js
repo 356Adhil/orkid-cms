@@ -245,7 +245,7 @@ export default function DashboardLayout({ children }) {
       {/* Main Content */}
       <div className="lg:pl-72">
         <main className="min-h-screen p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">{children}</div>
+          <div className="mx-auto">{children}</div>
         </main>
       </div>
     </div>
