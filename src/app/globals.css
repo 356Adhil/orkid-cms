@@ -108,6 +108,9 @@
     font-weight: 600;
     letter-spacing: -0.025em;
     line-height: 1.2;
+    color: var(
+      --color-foreground
+    ); /* Ensure headings use theme foreground color */
   }
 }
 
