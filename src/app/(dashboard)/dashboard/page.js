@@ -76,26 +76,37 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activities, setActivities] = useState([]);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        const [categoriesRes, videosRes, submissionsRes] = await Promise.all([
-          fetch("/api/categories"),
-          fetch("/api/videos"),
-          fetch("/api/submissions"),
-        ]);
+        const [categoriesRes, videosRes, submissionsRes, activitiesRes] =
+          await Promise.all([
+            fetch("/api/categories"),
+            fetch("/api/videos"),
+            fetch("/api/submissions"),
+            fetch("/api/activity"),
+          ]);
 
         // Check if responses are ok
-        if (!categoriesRes.ok || !videosRes.ok || !submissionsRes.ok) {
+        if (
+          !categoriesRes.ok ||
+          !videosRes.ok ||
+          !submissionsRes.ok ||
+          !activitiesRes.ok
+        ) {
           throw new Error("Failed to fetch some data");
         }
 
-        const [categories, videos, submissions] = await Promise.all([
-          categoriesRes.json(),
-          videosRes.json(),
-          submissionsRes.json(),
-        ]);
+        const [categories, videos, submissions, activities] = await Promise.all(
+          [
+            categoriesRes.json(),
+            videosRes.json(),
+            submissionsRes.json(),
+            activitiesRes.json(),
+          ]
+        );
 
         // Ensure we have arrays and get their lengths, default to 0 if not
         setStats({
@@ -103,8 +114,10 @@ export default function DashboardPage() {
           videos: Array.isArray(videos) ? videos.length : 0,
           submissions: Array.isArray(submissions) ? submissions.length : 0,
         });
+
+        setActivities(activities);
       } catch (error) {
-        console.error("Error fetching stats:", error);
+        console.error("Error fetching data:", error);
         setError("Failed to load dashboard data");
         // Set default values even on error
         setStats({
@@ -117,8 +130,26 @@ export default function DashboardPage() {
       }
     };
 
-    fetchStats();
+    fetchData();
   }, []);
+
+  const formatRelativeTime = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   const statsCards = [
     {
@@ -272,40 +303,34 @@ export default function DashboardPage() {
         <div className="card-modern p-6">
           <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
           <div className="space-y-4 text-foreground">
-            {[
-              {
-                action: "New category created",
-                time: "2 minutes ago",
-                type: "category",
-              },
-              { action: "Video uploaded", time: "1 hour ago", type: "video" },
-              {
-                action: "Submission reviewed",
-                time: "3 hours ago",
-                type: "submission",
-              },
-            ].map((activity, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 p-3 rounded-xl bg-accent/50"
-              >
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    activity.type === "category"
-                      ? "bg-blue-500"
-                      : activity.type === "video"
-                      ? "bg-purple-500"
-                      : "bg-green-500"
-                  }`}
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{activity.action}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {activity.time}
-                  </p>
-                </div>
+            {activities.length === 0 ? (
+              <div className="text-muted-foreground text-sm text-center py-8">
+                No recent activity yet. Your latest actions will appear here.
               </div>
-            ))}
+            ) : (
+              activities.map((activity, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-accent/50"
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      activity.type === "category"
+                        ? "bg-blue-500"
+                        : activity.type === "video"
+                        ? "bg-purple-500"
+                        : "bg-green-500"
+                    }`}
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{activity.action}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {activity.details} • {formatRelativeTime(activity.time)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
