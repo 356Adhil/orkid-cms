@@ -2,7 +2,125 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { EyeIcon, XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
+
+// Modern minimal icons
+const EyeIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+    />
+  </svg>
+);
+
+const XIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M6 18L18 6M6 6l12 12"
+    />
+  </svg>
+);
+
+const TrashIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+    />
+  </svg>
+);
+
+const DocumentIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+    />
+  </svg>
+);
+
+const FileTextIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5-3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0-1.125-.504-1.125-1.125V11.25a9 9 0 00-9-9z"
+    />
+  </svg>
+);
+
+const PaperClipIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M15.75 17.25L12 21m0 0l-3.75-3.75M12 21V3"
+    />
+  </svg>
+);
+
+const ClockIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
 
 export default function SubmissionsPage() {
   const router = useRouter();
@@ -62,164 +180,250 @@ export default function SubmissionsPage() {
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
+  const getSubmissionTypeIcon = (type) => {
+    switch (type) {
+      case "text":
+        return FileTextIcon;
+      case "file":
+        return PaperClipIcon;
+      default:
+        return DocumentIcon;
+    }
+  };
+
+  const getSubmissionTypeColor = (type) => {
+    switch (type) {
+      case "text":
+        return "bg-blue-500/10 text-blue-600";
+      case "file":
+        return "bg-green-500/10 text-green-600";
+      default:
+        return "bg-gray-500/10 text-gray-600";
+    }
+  };
+
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatRelativeTime = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return formatDate(dateString);
   };
 
   if (loading) {
     return (
-      <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Submissions</h1>
-          <div className="mt-4">Loading...</div>
+      <div className="animate-in">
+        <div className="mb-8">
+          <div className="h-8 bg-muted rounded-lg w-48 animate-pulse mb-2"></div>
+          <div className="h-4 bg-muted rounded w-64 animate-pulse"></div>
+        </div>
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="card-modern p-6 animate-pulse">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-muted rounded-lg"></div>
+                <div className="flex-1">
+                  <div className="h-4 bg-muted rounded w-48 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-32"></div>
+                </div>
+                <div className="h-8 bg-muted rounded w-20"></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-14 w-full">
+    <div className="animate-in">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8 sticky top-0 bg-white z-10 py-2">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 flex items-center gap-2">
-          <span>Submissions</span>
-        </h1>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground mb-2">Submissions</h1>
+        <p className="text-muted-foreground">
+          Review and manage user submissions
+        </p>
       </div>
+
       {/* Error */}
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl">
           {error}
         </div>
       )}
-      {/* Table/Card */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        {loading ? (
-          <div className="text-center text-gray-400 py-8">Loading...</div>
-        ) : submissions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <svg
-              className="h-12 w-12 text-gray-200 mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6"
-              />
-            </svg>
-            <div className="text-gray-400 text-lg font-medium">
-              No submissions yet.
+
+      {/* Content */}
+      {submissions.length === 0 ? (
+        <div className="card-modern">
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mb-4">
+              <DocumentIcon className="w-8 h-8 text-muted-foreground" />
             </div>
+            <h3 className="text-lg font-semibold mb-2">No submissions yet</h3>
+            <p className="text-muted-foreground max-w-sm">
+              User submissions will appear here once they start completing
+              tasks.
+            </p>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-separate border-spacing-y-1">
-              <thead>
-                <tr>
-                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50 rounded-tl-xl">
-                    Task
-                  </th>
-                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
-                    Type
-                  </th>
-                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
-                    Submitted At
-                  </th>
-                  <th className="py-3 px-4 bg-gray-50 rounded-tr-xl text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {submissions.map((submission, idx) => (
-                  <tr
-                    key={submission._id}
-                    className={`transition hover:bg-indigo-50 ${
-                      idx % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    }`}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {submissions.map((submission) => {
+            const TypeIcon = getSubmissionTypeIcon(submission.type);
+            return (
+              <div
+                key={submission._id}
+                className="card-modern p-6 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`p-3 rounded-xl ${getSubmissionTypeColor(
+                      submission.type
+                    )}`}
                   >
-                    <td className="py-3 px-4 font-medium text-gray-900 rounded-l-xl">
-                      {submission.taskId?.description || "N/A"}
-                    </td>
-                    <td className="py-3 px-4 text-gray-500">
-                      {getSubmissionTypeLabel(submission.type)}
-                    </td>
-                    <td className="py-3 px-4 text-gray-500">
-                      {formatDate(submission.submittedAt)}
-                    </td>
-                    <td className="py-3 px-4 text-right rounded-r-xl flex gap-2 justify-end">
-                      <button
-                        onClick={() => handleView(submission)}
-                        className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium px-3 py-1 rounded transition"
-                        title="View"
+                    <TypeIcon className="w-5 h-5" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground mb-1">
+                      {submission.taskId?.description || "Unknown Task"}
+                    </h3>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <ClockIcon className="w-3 h-3" />
+                        {formatRelativeTime(submission.submittedAt)}
+                      </span>
+                      <span
+                        className={`px-2 py-1 rounded-lg text-xs font-medium ${getSubmissionTypeColor(
+                          submission.type
+                        )}`}
                       >
-                        <EyeIcon className="h-5 w-5" /> View
-                      </button>
-                      <button
-                        onClick={() => handleDelete(submission._id)}
-                        className="flex items-center gap-1 text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded transition"
-                        title="Delete"
-                      >
-                        <TrashIcon className="h-5 w-5" /> Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                        {getSubmissionTypeLabel(submission.type)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleView(submission)}
+                      className="btn-ghost flex items-center gap-2 text-sm"
+                    >
+                      <EyeIcon className="w-4 h-4" />
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDelete(submission._id)}
+                      className="p-2 hover:bg-destructive/10 hover:text-destructive rounded-lg transition-colors"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Modal */}
       {showModal && selectedSubmission && (
-        <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
-          <div
-            className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative animate-fadeIn"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
-              aria-label="Close"
-              type="button"
-            >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
-            <div className="mb-4">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-card border border-border rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 animate-in max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-foreground">
                 Submission Details
-              </h3>
-              <p className="text-sm text-gray-500 mb-1">
-                Task: {selectedSubmission.taskId?.description}
-              </p>
-              <p className="text-sm text-gray-500 mb-1">
-                Type: {getSubmissionTypeLabel(selectedSubmission.type)}
-              </p>
-              <p className="text-sm text-gray-500 mb-1">
-                Submitted At: {formatDate(selectedSubmission.submittedAt)}
-              </p>
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 hover:bg-accent rounded-lg transition-colors"
+              >
+                <XIcon className="w-5 h-5 text-muted-foreground" />
+              </button>
             </div>
-            <div className="mt-4">
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">
-                Content
-              </h4>
-              {selectedSubmission.type === "text" ? (
-                <p className="mt-2 text-sm text-gray-700 bg-gray-50 rounded p-3">
-                  {selectedSubmission.content}
-                </p>
-              ) : (
-                <a
-                  href={selectedSubmission.content}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 hover:underline"
+
+            <div className="space-y-6">
+              {/* Header Info */}
+              <div className="flex items-start gap-4">
+                <div
+                  className={`p-3 rounded-xl ${getSubmissionTypeColor(
+                    selectedSubmission.type
+                  )}`}
                 >
-                  View File
-                </a>
-              )}
+                  {(() => {
+                    const TypeIcon = getSubmissionTypeIcon(
+                      selectedSubmission.type
+                    );
+                    return <TypeIcon className="w-6 h-6" />;
+                  })()}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    {selectedSubmission.taskId?.description || "Unknown Task"}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Type:</span>
+                      <span className="ml-2 font-medium">
+                        {getSubmissionTypeLabel(selectedSubmission.type)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Submitted:</span>
+                      <span className="ml-2 font-medium">
+                        {formatDate(selectedSubmission.submittedAt)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-3">
+                  Content
+                </h4>
+                {selectedSubmission.type === "text" ? (
+                  <div className="bg-accent/50 rounded-xl p-4">
+                    <p className="text-foreground whitespace-pre-wrap">
+                      {selectedSubmission.content}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="border border-border rounded-xl p-4 text-center">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <PaperClipIcon className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-sm font-medium text-foreground">
+                        File Attachment
+                      </span>
+                    </div>
+                    <a
+                      href={selectedSubmission.content}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-primary inline-flex items-center gap-2"
+                    >
+                      <EyeIcon className="w-4 h-4" />
+                      Open File
+                    </a>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

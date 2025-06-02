@@ -6,7 +6,7 @@ import auth from "@/middleware/auth";
 // GET all submissions
 export async function GET(req) {
   try {
-    await auth(req);
+    // Remove auth requirement for GET requests to match other APIs
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     const taskId = searchParams.get("taskId");

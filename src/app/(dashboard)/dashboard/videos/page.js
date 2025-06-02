@@ -2,7 +2,121 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusIcon, XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
+
+// Modern minimal icons
+const PlusIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M12 4.5v15m7.5-7.5h-15"
+    />
+  </svg>
+);
+
+const XIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M6 18L18 6M6 6l12 12"
+    />
+  </svg>
+);
+
+const TrashIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+    />
+  </svg>
+);
+
+const VideoIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+    />
+  </svg>
+);
+
+const PlayIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.348a1.125 1.125 0 01-1.667-.986V5.653z"
+    />
+  </svg>
+);
+
+const UploadIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+    />
+  </svg>
+);
+
+const LoadingIcon = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24">
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    ></path>
+  </svg>
+);
 
 export default function VideosPage() {
   const router = useRouter();
@@ -20,16 +134,10 @@ export default function VideosPage() {
     pauseTimes: [],
   });
   const [selectedFile, setSelectedFile] = useState(null);
-  const [currentPauseTime, setCurrentPauseTime] = useState({
-    timeInSeconds: 0,
-    task: "",
-  });
-  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     fetchVideos();
     fetchCategories();
-    fetchTasks();
   }, []);
 
   const fetchVideos = async () => {
@@ -54,16 +162,6 @@ export default function VideosPage() {
     }
   };
 
-  const fetchTasks = async () => {
-    try {
-      const res = await fetch("/api/tasks");
-      const data = await res.json();
-      setTasks(data);
-    } catch (error) {
-      setError("Failed to fetch tasks");
-    }
-  };
-
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
@@ -78,16 +176,16 @@ export default function VideosPage() {
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("type", "video");
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", selectedFile);
+      uploadFormData.append("type", "video");
 
       const uploadRes = await fetch("/api/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: formData,
+        body: uploadFormData,
       });
 
       if (!uploadRes.ok) {
@@ -168,198 +266,190 @@ export default function VideosPage() {
     }
   };
 
-  const addPauseTime = () => {
-    if (currentPauseTime.timeInSeconds <= 0) {
-      setError("Please enter a valid pause time");
-      return;
-    }
-
-    setFormData({
-      ...formData,
-      pauseTimes: [...formData.pauseTimes, currentPauseTime],
-    });
-    setCurrentPauseTime({ timeInSeconds: 0, task: "" });
-  };
-
-  const removePauseTime = (index) => {
-    setFormData({
-      ...formData,
-      pauseTimes: formData.pauseTimes.filter((_, i) => i !== index),
-    });
+  const formatDuration = (seconds) => {
+    if (!seconds) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   if (loading) {
     return (
-      <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Videos</h1>
-          <div className="mt-4">Loading...</div>
+      <div className="animate-in">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <div className="h-8 bg-muted rounded-lg w-48 animate-pulse mb-2"></div>
+            <div className="h-4 bg-muted rounded w-64 animate-pulse"></div>
+          </div>
+          <div className="h-10 bg-muted rounded-xl w-32 animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="card-modern h-64 animate-pulse">
+              <div className="p-6">
+                <div className="h-32 bg-muted rounded-lg mb-4"></div>
+                <div className="h-4 bg-muted rounded w-32 mb-2"></div>
+                <div className="h-3 bg-muted rounded w-24"></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto mt-14 w-full">
-      <div className="flex justify-between items-center mb-8 sticky top-0 bg-white z-10 py-2">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 flex items-center gap-2">
-          <span>Videos</span>
-        </h1>
+    <div className="animate-in">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Videos</h1>
+          <p className="text-muted-foreground">
+            Manage your video content library
+          </p>
+        </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition font-semibold"
+          className="btn-primary flex items-center gap-2"
         >
-          <PlusIcon className="h-5 w-5" /> Add Video
+          <PlusIcon className="w-4 h-4" />
+          Upload Video
         </button>
       </div>
+
+      {/* Error */}
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl">
           {error}
         </div>
       )}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        {loading ? (
-          <div className="text-center text-gray-400 py-8">Loading...</div>
-        ) : videos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <svg
-              className="h-12 w-12 text-gray-200 mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6"
-              />
-            </svg>
-            <div className="text-gray-400 text-lg font-medium">
-              No videos yet.
+
+      {/* Content */}
+      {videos.length === 0 ? (
+        <div className="card-modern">
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mb-4">
+              <VideoIcon className="w-8 h-8 text-muted-foreground" />
             </div>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-separate border-spacing-y-1">
-              <thead>
-                <tr>
-                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50 rounded-tl-xl">
-                    Title
-                  </th>
-                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
-                    Category
-                  </th>
-                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
-                    Duration
-                  </th>
-                  <th className="py-3 px-4 font-semibold text-gray-700 bg-gray-50">
-                    Description
-                  </th>
-                  <th className="py-3 px-4 bg-gray-50 rounded-tr-xl text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {videos.map((video, idx) => (
-                  <tr
-                    key={video._id}
-                    className={`transition hover:bg-indigo-50 ${
-                      idx % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    }`}
-                  >
-                    <td className="py-3 px-4 font-medium text-gray-900 rounded-l-xl">
-                      {video.title}
-                    </td>
-                    <td className="py-3 px-4 text-gray-500">
-                      {categories.find((c) => c._id === video.categoryId)
-                        ?.name || "N/A"}
-                    </td>
-                    <td className="py-3 px-4 text-gray-500">
-                      {video.duration ? `${video.duration} sec` : "-"}
-                    </td>
-                    <td className="py-3 px-4 text-gray-500">
-                      {video.description}
-                    </td>
-                    <td className="py-3 px-4 text-right rounded-r-xl flex gap-2 justify-end">
-                      <a
-                        href={video.cloudinaryUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium px-3 py-1 rounded transition"
-                        title="View"
-                      >
-                        View
-                      </a>
-                      <button
-                        onClick={() => handleDelete(video._id)}
-                        className="flex items-center gap-1 text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded transition"
-                        title="Delete"
-                      >
-                        <TrashIcon className="h-5 w-5" /> Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-      {showModal && (
-        <div className="fixed z-30 inset-0 flex items-center justify-center bg-black bg-opacity-40">
-          <div
-            className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative animate-fadeIn"
-            onClick={(e) => e.stopPropagation()}
-          >
+            <h3 className="text-lg font-semibold mb-2">No videos yet</h3>
+            <p className="text-muted-foreground mb-6 max-w-sm">
+              Start building your video library by uploading your first video.
+            </p>
             <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
-              aria-label="Close"
-              type="button"
+              onClick={() => setShowModal(true)}
+              className="btn-primary flex items-center gap-2"
             >
-              <XMarkIcon className="h-6 w-6" />
+              <UploadIcon className="w-4 h-4" />
+              Upload Video
             </button>
-            <form onSubmit={handleSubmit} className="mt-2">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">
-                Add Video
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {videos.map((video) => (
+            <div
+              key={video._id}
+              className="card-modern p-6 group hover:shadow-lg transition-all duration-300"
+            >
+              <div className="relative mb-4">
+                <div className="aspect-video bg-muted rounded-xl flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                  <VideoIcon className="w-12 h-12 text-muted-foreground" />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <a
+                    href={video.cloudinaryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary flex items-center gap-2 shadow-lg"
+                  >
+                    <PlayIcon className="w-4 h-4" />
+                    Play
+                  </a>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-semibold text-foreground line-clamp-2">
+                  {video.title}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {categories.find((c) => c._id === video.categoryId)?.name ||
+                    "Uncategorized"}
+                </p>
+                {video.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {video.description}
+                  </p>
+                )}
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {formatDuration(video.duration)}
+                  </span>
+                  <button
+                    onClick={() => handleDelete(video._id)}
+                    className="p-1.5 hover:bg-destructive/10 hover:text-destructive rounded-lg transition-colors"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Upload Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-card border border-border rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 animate-in">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-foreground">
+                Upload Video
               </h2>
-              <div className="mb-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 hover:bg-accent rounded-lg transition-colors"
+              >
+                <XIcon className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
                 <label
                   htmlFor="title"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-foreground mb-2"
                 >
-                  Title
+                  Title *
                 </label>
                 <input
                   type="text"
-                  name="title"
                   id="title"
                   required
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="input-modern w-full"
+                  placeholder="Enter video title"
                   value={formData.title}
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
                 />
               </div>
-              <div className="mb-4">
+
+              <div>
                 <label
                   htmlFor="categoryId"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-foreground mb-2"
                 >
-                  Category
+                  Category *
                 </label>
                 <select
-                  name="categoryId"
                   id="categoryId"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                  className="input-modern w-full"
                   value={formData.categoryId}
                   onChange={(e) =>
                     setFormData({ ...formData, categoryId: e.target.value })
                   }
-                  required
                 >
                   <option value="">Select a category</option>
                   {categories.map((cat) => (
@@ -369,72 +459,98 @@ export default function VideosPage() {
                   ))}
                 </select>
               </div>
-              <div className="mb-4">
+
+              <div>
                 <label
                   htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-foreground mb-2"
                 >
                   Description
                 </label>
                 <textarea
-                  name="description"
                   id="description"
-                  rows="2"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  rows="3"
+                  className="input-modern w-full resize-none"
+                  placeholder="Enter video description (optional)"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
                 />
               </div>
-              <div className="mb-4">
+
+              <div>
                 <label
                   htmlFor="duration"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-foreground mb-2"
                 >
                   Duration (seconds)
                 </label>
                 <input
                   type="number"
-                  name="duration"
                   id="duration"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  min="0"
+                  className="input-modern w-full"
+                  placeholder="Enter duration in seconds"
                   value={formData.duration}
                   onChange={(e) =>
-                    setFormData({ ...formData, duration: e.target.value })
+                    setFormData({
+                      ...formData,
+                      duration: parseInt(e.target.value) || 0,
+                    })
                   }
                 />
               </div>
-              <div className="mb-6">
+
+              <div>
                 <label
                   htmlFor="file"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-foreground mb-2"
                 >
-                  Video File
+                  Video File *
                 </label>
-                <input
-                  type="file"
-                  name="file"
-                  id="file"
-                  accept="video/*"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  onChange={handleFileChange}
-                />
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="file"
+                    accept="video/*"
+                    required
+                    className="input-modern w-full"
+                    onChange={handleFileChange}
+                  />
+                  {selectedFile && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="flex justify-end gap-2">
+
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium"
+                  className="btn-secondary"
+                  disabled={uploading}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition font-semibold"
+                  className="btn-primary flex items-center gap-2"
                   disabled={uploading}
                 >
-                  {uploading ? "Uploading..." : "Create"}
+                  {uploading ? (
+                    <>
+                      <LoadingIcon className="w-4 h-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <UploadIcon className="w-4 h-4" />
+                      Upload Video
+                    </>
+                  )}
                 </button>
               </div>
             </form>
