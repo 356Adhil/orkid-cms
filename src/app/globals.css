@@ -199,6 +199,31 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 20%, transparent);
   }
 
+  /* Modern select styles */
+  select.input-modern {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--color-input);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 2.5rem 0.75rem 1rem; /* extra right padding for arrow */
+    color: var(--color-foreground);
+    font-size: 1rem;
+    transition: all var(--animate-duration-normal) ease;
+    background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' fill='none' stroke='%2371717a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem 1.25rem;
+    cursor: pointer;
+  }
+
+  select.input-modern:focus {
+    border-color: var(--color-ring);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 20%, transparent);
+    outline: none;
+  }
+
   /* Navigation styles */
   .nav-link {
     display: flex;

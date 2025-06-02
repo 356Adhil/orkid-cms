@@ -134,10 +134,12 @@ export default function VideosPage() {
     pauseTimes: [],
   });
   const [selectedFile, setSelectedFile] = useState(null);
+  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     fetchVideos();
     fetchCategories();
+    fetchTasks();
   }, []);
 
   const fetchVideos = async () => {
@@ -159,6 +161,16 @@ export default function VideosPage() {
       setCategories(data);
     } catch (error) {
       setError("Failed to fetch categories");
+    }
+  };
+
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch("/api/tasks");
+      const data = await res.json();
+      setTasks(data);
+    } catch (error) {
+      setError("Failed to fetch tasks");
     }
   };
 
@@ -271,6 +283,34 @@ export default function VideosPage() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const addPauseTime = () => {
+    setFormData({
+      ...formData,
+      pauseTimes: [...formData.pauseTimes, { timeInSeconds: 0, task: "" }],
+    });
+  };
+
+  const removePauseTime = (index) => {
+    const newPauseTimes = [...formData.pauseTimes];
+    newPauseTimes.splice(index, 1);
+    setFormData({
+      ...formData,
+      pauseTimes: newPauseTimes,
+    });
+  };
+
+  const updatePauseTime = (index, field, value) => {
+    const newPauseTimes = [...formData.pauseTimes];
+    newPauseTimes[index] = {
+      ...newPauseTimes[index],
+      [field]: field === "timeInSeconds" ? parseInt(value) || 0 : value,
+    };
+    setFormData({
+      ...formData,
+      pauseTimes: newPauseTimes,
+    });
   };
 
   if (loading) {
@@ -500,6 +540,66 @@ export default function VideosPage() {
                     })
                   }
                 />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Pause Times
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addPauseTime}
+                    className="text-sm text-primary hover:text-primary/80"
+                  >
+                    + Add Pause Time
+                  </button>
+                </div>
+
+                {formData.pauseTimes.map((pauseTime, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <div className="flex-1">
+                      <input
+                        type="number"
+                        min="0"
+                        max={formData.duration}
+                        className="input-modern w-full"
+                        placeholder="Time in seconds"
+                        value={pauseTime.timeInSeconds}
+                        onChange={(e) =>
+                          updatePauseTime(
+                            index,
+                            "timeInSeconds",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <select
+                        className="input-modern w-full"
+                        value={pauseTime.task}
+                        onChange={(e) =>
+                          updatePauseTime(index, "task", e.target.value)
+                        }
+                      >
+                        <option value="">Select a task</option>
+                        {tasks.map((task) => (
+                          <option key={task._id} value={task._id}>
+                            {task.description}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removePauseTime(index)}
+                      className="p-2 hover:bg-destructive/10 hover:text-destructive rounded-lg transition-colors"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
               </div>
 
               <div>
