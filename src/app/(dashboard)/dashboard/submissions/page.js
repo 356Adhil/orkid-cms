@@ -379,13 +379,13 @@ export default function SubmissionsPage() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-muted-foreground">Type:</span>
-                      <span className="ml-2 font-medium">
+                      <span className="ml-2 font-medium text-foreground">
                         {getSubmissionTypeLabel(selectedSubmission.type)}
                       </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Submitted:</span>
-                      <span className="ml-2 font-medium">
+                      <span className="ml-2 font-medium text-foreground">
                         {formatDate(selectedSubmission.submittedAt)}
                       </span>
                     </div>

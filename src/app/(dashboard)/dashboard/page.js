@@ -232,7 +232,7 @@ export default function DashboardPage() {
                 <CategoryIcon className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-medium">Manage Categories</p>
+                <p className="font-medium text-foreground">Manage Categories</p>
                 <p className="text-sm text-muted-foreground">
                   Organize your content
                 </p>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
                 <VideoIcon className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-medium">Upload Videos</p>
+                <p className="font-medium text-foreground">Upload Videos</p>
                 <p className="text-sm text-muted-foreground">Add new content</p>
               </div>
             </Link>
@@ -258,7 +258,9 @@ export default function DashboardPage() {
                 <SubmissionIcon className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-medium">Review Submissions</p>
+                <p className="font-medium text-foreground">
+                  Review Submissions
+                </p>
                 <p className="text-sm text-muted-foreground">
                   Check pending items
                 </p>
@@ -269,7 +271,7 @@ export default function DashboardPage() {
 
         <div className="card-modern p-6">
           <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-          <div className="space-y-4">
+          <div className="space-y-4 text-foreground">
             {[
               {
                 action: "New category created",
