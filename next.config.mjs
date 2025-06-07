@@ -1,13 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  api: {
-    bodyParser: {
-      sizeLimit: false, // Remove size limit for uploads
-    },
-  },
   experimental: {
     // Enable large file uploads
     serverComponentsExternalPackages: ["cloudinary"],
+  },
+  // For App Router, we need to configure this differently
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+    };
+    return config;
   },
 };
 
